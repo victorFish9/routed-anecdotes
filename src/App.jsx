@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Link, useMatch } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom'
 
 const Menu = ({ anecdotes, addNew }) => {
 
@@ -21,10 +21,20 @@ const Menu = ({ anecdotes, addNew }) => {
           <Route path='/' element={<AnecdoteList anecdotes={anecdotes} />} />
           <Route path='/about' element={<About />} />
           <Route path='/createnew' element={<CreateNew addNew={addNew} />} />
-          <Route path='/anecdote/:id' />
+          <Route path='/anecdote/:id' element={<Anecdote anecdotes={anecdotes} />} />
         </Routes>
       </div>
     </Router>
+  )
+}
+
+const Anecdote = ({ anecdotes }) => {
+  const id = useParams().id
+  const anecdote = anecdotes.find(n => n.id === Number(id))
+  return (
+    <div>
+      <p>{anecdote.content}</p>
+    </div>
   )
 }
 
@@ -34,7 +44,7 @@ const AnecdoteList = ({ anecdotes }) => (
     <ul>
       {anecdotes.map(anecdote =>
         <li key={anecdote.id} >
-          {anecdote.content}
+          <Link to={`/anecdote/${anecdote.id}`}>{anecdote.content}</Link>
         </li>)}
     </ul>
   </div>
@@ -63,6 +73,7 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
+  const navigate = useNavigate()
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
@@ -76,6 +87,7 @@ const CreateNew = (props) => {
       info,
       votes: 0
     })
+    navigate('/')
   }
 
   return (
@@ -127,6 +139,12 @@ const App = () => {
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
+    setNotification("A new anecdote " + anecdote.content + " created!")
+
+    setTimeout(() => {
+      setNotification('')
+    }, 5000)
+
   }
 
   const anecdoteById = (id) =>
@@ -146,6 +164,7 @@ const App = () => {
   return (
     <div>
       <h1>Software anecdotes</h1>
+      {notification}
       <Menu anecdotes={anecdotes} addNew={addNew} />
       <Footer />
     </div>
