@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom'
+import { useField } from './hooks'
 
 const Menu = ({ anecdotes, addNew }) => {
 
@@ -71,23 +72,30 @@ const Footer = () => (
     See <a href='https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js'>https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js</a> for the source code.
   </div>
 )
-
+let value = ''
 const CreateNew = (props) => {
   const navigate = useNavigate()
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const customcontent = useField('text')
+  const customeauthor = useField('author')
+  const customeinfo = useField('info')
+
 
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: customcontent.value,
+      author: customeauthor.value,
+      info: customeinfo.value,
       votes: 0
     })
     navigate('/')
+  }
+
+  const resetInput = () => {
+    customcontent.reset()
+    customeauthor.reset()
+    customeinfo.reset()
   }
 
   return (
@@ -95,18 +103,19 @@ const CreateNew = (props) => {
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          customcontent
+          <input type={customcontent.type} value={customcontent.value} onChange={customcontent.onChange} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input type={customeauthor.type} value={customeauthor.value} onChange={customeauthor.onChange} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
+          <input type={customeinfo.type} value={customeinfo.value} onChange={customeinfo.onChange} />
         </div>
         <button>create</button>
+        <button onClick={resetInput} type='reset'>reset</button>
       </form>
     </div>
   )
@@ -140,6 +149,7 @@ const App = () => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
     setNotification("A new anecdote " + anecdote.content + " created!")
+    console.log("addnew: ", anecdote)
 
     setTimeout(() => {
       setNotification('')
